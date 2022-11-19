@@ -838,6 +838,7 @@ Fetch::squash(const PCStateBase &new_pc, const InstSeqNum seq_num,
 void
 Fetch::tick()
 {
+    // One thread.
     std::list<ThreadID>::iterator threads = activeThreads->begin();
     std::list<ThreadID>::iterator end = activeThreads->end();
     bool status_change = false;
@@ -872,6 +873,7 @@ Fetch::tick()
     for (threadFetched = 0; threadFetched < numFetchingThreads;
          threadFetched++) {
         // Fetch each of the actively fetching threads.
+        // Fetch their next_pc from icaches.
         fetch(status_change);
     }
 
@@ -1048,6 +1050,7 @@ Fetch::buildInst(ThreadID tid, StaticInstPtr staticInst,
     InstSeqNum seq = cpu->getAndIncrementInstSeq();
 
     DynInst::Arrays arrays;
+    //dyn_inst.hh:86
     arrays.numSrcs = staticInst->numSrcRegs();
     arrays.numDests = staticInst->numDestRegs();
 
@@ -1099,6 +1102,7 @@ Fetch::fetch(bool &status_change)
     // Start actual fetch
     //////////////////////////////////////////
     ThreadID tid = getFetchingThread();
+    //get one pc each cycle(smt threads' pc are different)
 
     assert(!cpu->switchedOut());
 
@@ -1116,8 +1120,10 @@ Fetch::fetch(bool &status_change)
     DPRINTF(Fetch, "Attempting to fetch from [tid:%i]\n", tid);
 
     // The current PC.
+    // Each thread has a this_pc.
     PCStateBase &this_pc = *pc[tid];
 
+    //these two lines are usually 0 in RISCV
     Addr pcOffset = fetchOffset[tid];
     Addr fetchAddr = (this_pc.instAddr() + pcOffset) & decoder[tid]->pcMask();
 
@@ -1133,13 +1139,15 @@ Fetch::fetch(bool &status_change)
         status_change = true;
     } else if (fetchStatus[tid] == Running) {
         // Align the fetch PC so its at the start of a fetch buffer segment.
+        // Align by fetchBufferSize which is divisible by cachelinesize
+        // Cachelinesize = n*fetchbufferSize
         Addr fetchBufferBlockPC = fetchBufferAlignPC(fetchAddr);
 
         // If buffer is no longer valid or fetchAddr has moved to point
         // to the next cache block, AND we have no remaining ucode
         // from a macro-op, then start fetch from icache.
-        if (!(fetchBufferValid[tid] &&
-                    fetchBufferBlockPC == fetchBufferPC[tid]) && !inRom &&
+        if ((!fetchBufferValid[tid] ||
+                    fetchBufferBlockPC != fetchBufferPC[tid]) && !inRom &&
                 !macroop[tid]) {
             DPRINTF(Fetch, "[tid:%i] Attempting to translate and read "
                     "instruction, starting at PC %s.\n", tid, this_pc);
@@ -1206,6 +1214,7 @@ Fetch::fetch(bool &status_change)
     // predicted taken
     while (numInst < fetchWidth && fetchQueue[tid].size() < fetchQueueSize
            && !predictedBranch && !quiesce && !fetchStall) {
+        // TLDR till 1277
         // We need to process more memory if we aren't going to get a
         // StaticInst from the rom, the current macroop, or what's already
         // in the decoder.
@@ -1286,9 +1295,11 @@ Fetch::fetch(bool &status_change)
 #endif
 
             set(next_pc, this_pc);
+            // next_pc = this_pc
 
             // If we're branching after this instruction, quit fetching
             // from the same block.
+            // branching??
             predictedBranch |= this_pc.branching();
             predictedBranch |= lookupAndUpdateNextPC(instruction, *next_pc);
             if (predictedBranch) {

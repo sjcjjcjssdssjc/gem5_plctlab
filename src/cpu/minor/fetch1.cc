@@ -300,7 +300,7 @@ Fetch1::tryToSendToTransfers(FetchRequestPtr request)
          *  as Complete/packet == NULL */
 
         request->state = FetchRequest::Complete;
-        moveFromRequestsToTransfers(request);
+        moveFromRequestsToTransfers(request);//?
 
         /* Wake up the pipeline next cycle as there will be no event
          *  for this queue->queue transfer */
@@ -423,7 +423,7 @@ Fetch1::recvTimingResp(PacketPtr response)
      *  should hit the responses queue.  It's the job of 'step' to throw them
      *  away. */
     FetchRequestPtr fetch_request = safe_cast<FetchRequestPtr>
-        (response->popSenderState());
+        (response->popSenderState());//?
 
     /* Fixup packet in fetch_request as this may have changed */
     assert(!fetch_request->packet);
