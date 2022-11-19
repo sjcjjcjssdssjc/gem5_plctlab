@@ -885,7 +885,7 @@ Fetch::tick()
         _status = updateFetchStatus();
     }
 
-    // Issue the next I-cache request if possible.
+    // Issue the **next** I-cache request if possible.
     for (ThreadID i = 0; i < numThreads; ++i) {
         if (issuePipelinedIfetch[i]) {
             pipelineIcacheAccesses(i);
@@ -1202,6 +1202,8 @@ Fetch::fetch(bool &status_change)
     bool quiesce = false;
 
     const unsigned numInsts = fetchBufferSize / instSize;
+    // One cacheline contains multiple blocks whose
+    // length is fetchBufferSize
     unsigned blkOffset = (fetchAddr - fetchBufferPC[tid]) / instSize;
 
     auto *dec_ptr = decoder[tid];
