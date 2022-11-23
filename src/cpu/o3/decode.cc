@@ -508,11 +508,12 @@ Decode::checkSignalsAndUpdate(ThreadID tid)
 
         return true;
     }
-
+    //from rename 's block
     if (checkStall(tid)) {
         return block(tid);
     }
 
+    //from rename 's block
     if (decodeStatus[tid] == Blocked) {
         DPRINTF(Decode, "[tid:%i] Done blocking, switching to unblocking.\n",
                 tid);
@@ -593,6 +594,7 @@ Decode::decode(bool &status_change, ThreadID tid)
 
     // Decode should try to decode as many instructions as its bandwidth
     // will allow, as long as it is not currently blocked.
+    // Squash, Unblocking->running(unblock to run need an empty skid)
     if (decodeStatus[tid] == Running ||
         decodeStatus[tid] == Idle) {
         DPRINTF(Decode, "[tid:%i] Not blocked, so attempting to run "
@@ -602,6 +604,7 @@ Decode::decode(bool &status_change, ThreadID tid)
     } else if (decodeStatus[tid] == Unblocking) {
         // Make sure that the skid buffer has something in it if the
         // status is unblocking.
+        // Otherwise the status would be Running(from Unblocking).
         assert(!skidsEmpty());
 
         // If the status was unblocking, then instructions from the skid
@@ -695,6 +698,7 @@ Decode::decodeInsts(ThreadID tid)
 
         // Ensure that if it was predicted as a branch, it really is a
         // branch.
+        // Jump or not jump mispredicted
         if (inst->readPredTaken() && !inst->isControl()) {
             panic("Instruction predicted as a branch!");
 
@@ -717,6 +721,7 @@ Decode::decodeInsts(ThreadID tid)
 
             std::unique_ptr<PCStateBase> target = inst->branchTarget();
             if (*target != inst->readPredTarg()) {
+                // Jump target mispredicted.
                 ++stats.branchMispred;
 
                 // Might want to set some sort of boolean and just do
@@ -737,6 +742,7 @@ Decode::decodeInsts(ThreadID tid)
 
     // If we didn't process all instructions, then we will need to block
     // and put all those instructions into the skid buffer.
+    // Decodewidth is not big enough to consume the
     if (!insts_to_decode.empty()) {
         block(tid);
     }

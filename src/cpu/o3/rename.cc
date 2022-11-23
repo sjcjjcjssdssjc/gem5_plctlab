@@ -357,7 +357,7 @@ Rename::squash(const InstSeqNum &squash_seq_num, ThreadID tid)
         } else {
             resumeSerialize = false;
             toDecode->renameUnblock[tid] = 1;
-
+            //?
             serializeInst[tid] = NULL;
         }
     }
@@ -370,7 +370,7 @@ Rename::squash(const InstSeqNum &squash_seq_num, ThreadID tid)
         if (fromDecode->insts[i]->threadNumber == tid &&
             fromDecode->insts[i]->seqNum > squash_seq_num) {
             fromDecode->insts[i]->setSquashed();
-            wroteToTimeBuffer = true;
+            wroteToTimeBuffer = true;//?
         }
 
     }
@@ -945,7 +945,7 @@ Rename::doSquash(const InstSeqNum &squashed_seq_num, ThreadID tid)
         // removed because the instruction it was mapped to got squashed. Note
         // that this is done before hb_it is incremented.
         ppSquashInRename->notify(std::make_pair(hb_it->instSeqNum,
-                                                hb_it->newPhysReg));
+                                                hb_it->newPhysReg));//?
 
         historyBuffer[tid].erase(hb_it++);
 
@@ -1183,6 +1183,7 @@ Rename::validInsts()
     return inst_count;
 }
 
+//only from next stage
 void
 Rename::readStallSignals(ThreadID tid)
 {
@@ -1230,6 +1231,7 @@ Rename::checkStall(ThreadID tid)
 void
 Rename::readFreeEntries(ThreadID tid)
 {
+    //there is free iq entries.
     if (fromIEW->iewInfo[tid].usedIQ)
         freeEntries[tid].iqEntries = fromIEW->iewInfo[tid].freeIQEntries;
 
@@ -1241,7 +1243,7 @@ Rename::readFreeEntries(ThreadID tid)
     if (fromCommit->commitInfo[tid].usedROB) {
         freeEntries[tid].robEntries =
             fromCommit->commitInfo[tid].freeROBEntries;
-        emptyROB[tid] = fromCommit->commitInfo[tid].emptyROB;
+        emptyROB[tid] = fromCommit->commitInfo[tid].emptyROB;//?
     }
 
     DPRINTF(Rename, "[tid:%i] Free IQ: %i, Free ROB: %i, "

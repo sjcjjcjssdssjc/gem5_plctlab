@@ -869,7 +869,8 @@ Fetch::tick()
             interruptPending = false;
         }
     }
-
+    // numFetchingThreads is smt thread number
+    // but what is numThreads?
     for (threadFetched = 0; threadFetched < numFetchingThreads;
          threadFetched++) {
         // Fetch each of the actively fetching threads.
@@ -910,6 +911,7 @@ Fetch::tick()
 
     while (available_insts != 0 && insts_to_decode < decodeWidth) {
         ThreadID tid = *tid_itr;
+        //fetchqueue is formed by buildInst
         if (!stalls[tid].decode && !fetchQueue[tid].empty()) {
             const auto& inst = fetchQueue[tid].front();
             toDecode->insts[toDecode->size++] = inst;
@@ -1301,7 +1303,7 @@ Fetch::fetch(bool &status_change)
 
             // If we're branching after this instruction, quit fetching
             // from the same block.
-            // branching??
+            // branching?
             predictedBranch |= this_pc.branching();
             predictedBranch |= lookupAndUpdateNextPC(instruction, *next_pc);
             if (predictedBranch) {
@@ -1556,6 +1558,7 @@ Fetch::pipelineIcacheAccesses(ThreadID tid)
 
     Addr pcOffset = fetchOffset[tid];
     Addr fetchAddr = (this_pc.instAddr() + pcOffset) & decoder[tid]->pcMask();
+    //for 32bit pcmask is 1111...01
 
     // Align the fetch PC so its at the start of a fetch buffer segment.
     Addr fetchBufferBlockPC = fetchBufferAlignPC(fetchAddr);
