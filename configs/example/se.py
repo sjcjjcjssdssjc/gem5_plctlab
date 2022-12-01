@@ -130,7 +130,10 @@ numThreads = 1
 
 if args.bench:
     apps = args.bench.split("-")
+    if(args.num_cpus == 1):
+        args.num_cpus = args.num_cpus + 1
     if len(apps) != args.num_cpus:
+        print(len(apps), args.num_cpus)
         print("number of benchmarks not equal to set num_cpus!")
         sys.exit(1)
 
