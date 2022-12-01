@@ -1206,6 +1206,7 @@ InstructionQueue::doSquash(ThreadID tid)
 
         // Only handle the instruction if it actually is in the IQ and
         // hasn't already been squashed in the IQ.
+        // Why is tnumber != tid
         if (squashed_inst->threadNumber != tid ||
             squashed_inst->isSquashedInIQ()) {
             --squash_it;
