@@ -156,6 +156,8 @@ else:
 
 
 (CPUClass, test_mem_mode, FutureClass) = Simulation.setCPUClass(args)
+CPUClass = DerivO3CPU
+test_mem_mode = "timing"
 CPUClass.numThreads = numThreads
 
 # Check -- do not allow SMT with multiple CPUs
