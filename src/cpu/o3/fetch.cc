@@ -1151,6 +1151,7 @@ Fetch::fetch(bool &status_change)
         if ((!fetchBufferValid[tid] ||
                     fetchBufferBlockPC != fetchBufferPC[tid]) && !inRom &&
                 !macroop[tid]) {
+            //normal situation
             DPRINTF(Fetch, "[tid:%i] Attempting to translate and read "
                     "instruction, starting at PC %s.\n", tid, this_pc);
 

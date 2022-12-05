@@ -813,6 +813,7 @@ Commit::commit()
             if (cpu->isThreadExiting(tid))
                 cpu->scheduleThreadExitEvent(tid);
         } else if (tcSquash[tid]) {
+            DPRINTF(Commit, "[tid:%i] there is tcsquash!\n",tid);
             assert(commitStatus[tid] != TrapPending);
             squashFromTC(tid);
         } else if (commitStatus[tid] == SquashAfterPending) {
