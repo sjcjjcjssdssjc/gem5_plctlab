@@ -683,6 +683,7 @@ InstructionQueue::addToOrderList(OpClass op_class)
     queue_entry.queueType = op_class;
 
     queue_entry.oldestInst = readyInsts[op_class].top()->seqNum;
+    // the smallest seqNum
 
     ListOrderIt list_it = listOrder.begin();
     ListOrderIt list_end_it = listOrder.end();
@@ -1358,6 +1359,7 @@ InstructionQueue::addToDependents(const DynInstPtr &new_inst)
                         new_inst->pcState(), src_reg->index(),
                         src_reg->className());
 
+                // Insts is from rename.
                 dependGraph.insert(src_reg->flatIndex(), new_inst);
 
                 // Change the return value to indicate that something

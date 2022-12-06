@@ -65,7 +65,7 @@ ActivityRecorder::activity()
 
     ++activityCount;
 
-    DPRINTF(Activity, "Activity: %i\n", activityCount);
+    DPRINTF(Activity, "Activity without stage: %i\n", activityCount);
 }
 
 void
