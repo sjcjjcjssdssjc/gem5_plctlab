@@ -57,6 +57,7 @@ ActivityRecorder::activity()
     // If we've already recorded activity for this cycle, we don't
     // want to increment the count any more.
     if (activityBuffer[0]) {
+        DPRINTF(Activity, "Activity Already on: %i\n", activityCount);
         return;
     }
 
@@ -77,7 +78,8 @@ ActivityRecorder::advance()
 
         assert(activityCount >= 0);
 
-        DPRINTF(Activity, "Activity: %i\n", activityCount);
+        DPRINTF(Activity, "Longestlatency:%i Activity: %i\n",
+        longestLatency, activityCount);
 
         if (activityCount == 0) {
             DPRINTF(Activity, "No activity left!\n");
@@ -91,6 +93,7 @@ void
 ActivityRecorder::activateStage(const int idx)
 {
     // Increment the activity count if this stage wasn't already active.
+    // idx for each pipeline stage.
     if (!stageActive[idx]) {
         ++activityCount;
 
@@ -108,6 +111,7 @@ void
 ActivityRecorder::deactivateStage(const int idx)
 {
     // Decrement the activity count if this stage was active.
+    // idx for each pipeline stage.
     if (stageActive[idx]) {
         --activityCount;
 

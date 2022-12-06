@@ -655,6 +655,7 @@ Decode::decodeInsts(ThreadID tid)
 
         DynInstPtr inst = std::move(insts_to_decode.front());
 
+        // sortinsts() so
         insts_to_decode.pop();
 
         DPRINTF(Decode, "[tid:%i] Processing instruction [sn:%lli] with "

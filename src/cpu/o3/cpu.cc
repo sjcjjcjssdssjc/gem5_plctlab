@@ -506,11 +506,11 @@ CPU::init()
 {
     BaseCPU::init();
 
-    for (ThreadID tid = 0; tid < numThreads; ++tid) {
-        // Set noSquashFromTC so that the CPU doesn't squash when initially
-        // setting up registers.
-        thread[tid]->noSquashFromTC = true;
-    }
+    // for (ThreadID tid = 0; tid < numThreads; ++tid) {
+    //     // Set noSquashFromTC so that the CPU doesn't squash when initially
+    //     // setting up registers.
+    //     thread[tid]->noSquashFromTC = true;
+    // }
 
     // Clear noSquashFromTC.
     for (int tid = 0; tid < numThreads; ++tid)
@@ -524,6 +524,7 @@ CPU::startup()
 {
     BaseCPU::startup();
 
+    // fetch,iew and commit have activity
     fetch.startupStage();
     decode.startupStage();
     iew.startupStage();

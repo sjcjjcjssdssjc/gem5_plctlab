@@ -417,6 +417,7 @@ Rename::tick()
     }
 
     if (wroteToTimeBuffer) {
+        // if toIEWIndex is true
         DPRINTF(Activity, "Activity this cycle.\n");
         cpu->activityThisCycle();
     }

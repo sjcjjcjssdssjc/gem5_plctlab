@@ -116,7 +116,8 @@ Fetch::Fetch(CPU *_cpu, const BaseO3CPUParams &params)
     if (cacheBlkSize % fetchBufferSize)
         fatal("cache block (%u bytes) is not a multiple of the "
               "fetch buffer (%u bytes)\n", cacheBlkSize, fetchBufferSize);
-
+    DPRINTF(Fetch, "fetchBufferSize: %u, cacheBlkSize: %u",
+    fetchBufferSize, cacheBlkSize);
     for (int i = 0; i < MaxThreads; i++) {
         fetchStatus[i] = Idle;
         decoder[i] = nullptr;
@@ -487,6 +488,7 @@ Fetch::switchToActive()
 void
 Fetch::switchToInactive()
 {
+    // no one called this
     if (_status == Active) {
         DPRINTF(Activity, "Deactivating stage.\n");
 
@@ -804,6 +806,12 @@ Fetch::updateFetchStatus()
                 if (fetchStatus[tid] == IcacheAccessComplete) {
                     DPRINTF(Activity, "[tid:%i] Activating fetch due to cache"
                             "completion\n",tid);
+                } else if (fetchStatus[tid] == Squashing) {
+                    DPRINTF(Activity, "[tid:%i] Activating fetch due to cache"
+                            "squashing\n",tid);
+                } else {
+                    DPRINTF(Activity, "[tid:%i] Activating fetch due to cache"
+                            "running\n",tid);
                 }
 
                 cpu->activateStage(CPU::FetchIdx);
@@ -1219,12 +1227,15 @@ Fetch::fetch(bool &status_change)
     // predicted taken
     while (numInst < fetchWidth && fetchQueue[tid].size() < fetchQueueSize
            && !predictedBranch && !quiesce && !fetchStall) {
-        // TLDR till 1277
         // We need to process more memory if we aren't going to get a
         // StaticInst from the rom, the current macroop, or what's already
         // in the decoder.
-        bool needMem = !inRom && !curMacroop && !dec_ptr->instReady();
+        bool needMem = !dec_ptr->instReady();
+        // !inRom && !curMacroop &&
+        assert(!inRom && !curMacroop);
+        // For riscv
         fetchAddr = (this_pc.instAddr() + pcOffset) & pc_mask;
+        // &= fetchBufferSize - 1(is multiple of instsize)
         Addr fetchBufferBlockPC = fetchBufferAlignPC(fetchAddr);
 
         if (needMem) {
@@ -1240,6 +1251,7 @@ Fetch::fetch(bool &status_change)
                 break;
             }
 
+            // fetchbuffer is useless
             memcpy(dec_ptr->moreBytesPtr(),
                     fetchBuffer[tid] + blkOffset * instSize, instSize);
             decoder[tid]->moreBytes(this_pc, fetchAddr);
@@ -1251,6 +1263,7 @@ Fetch::fetch(bool &status_change)
             }
         }
 
+        // TLDR till 1277
         // Extract as many instructions and/or microops as we can from
         // the memory we've processed so far.
         do {
