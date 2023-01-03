@@ -1388,6 +1388,7 @@ IEW::writebackInsts()
     // Either have IEW have direct access to scoreboard, or have this
     // as part of backwards communication.
     // ToCommit is from execute!
+    // Execute and wakeup in one cycle?
     for (int inst_num = 0; inst_num < wbWidth &&
              toCommit->insts[inst_num]; inst_num++) {
         DynInstPtr inst = toCommit->insts[inst_num];
@@ -1433,6 +1434,9 @@ IEW::writebackInsts()
 void
 IEW::tick()
 {
+    // rename -> IQ.readyInsts
+    // Issue sends insts from IQ.readyInsts to FU
+    // While dispatch sends insts from rename to IQ.readyInsts
     wbNumInst = 0;
     wbCycle = 0;
 
@@ -1456,6 +1460,9 @@ IEW::tick()
         DPRINTF(IEW,"Issue: Processing [tid:%i]\n",tid);
 
         checkSignalsAndUpdate(tid);
+        // Dispatch insts from rename to Instqueue.
+        // Call dispatchinsts who inserts the inst from
+        // rename stage that is ready in the beginning.
         dispatch(tid);
     }
 

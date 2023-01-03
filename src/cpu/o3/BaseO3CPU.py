@@ -84,7 +84,7 @@ class BaseO3CPU(BaseCPU):
                                    "delay")
     commitToFetchDelay = Param.Cycles(1, "Commit to fetch delay")
     fetchWidth = Param.Unsigned(2, "Fetch width")
-    fetchBufferSize = Param.Unsigned(64, "Fetch buffer size in bytes")
+    fetchBufferSize = Param.Unsigned(16, "Fetch buffer size in bytes")
     fetchQueueSize = Param.Unsigned(32, "Fetch queue size in micro-ops "
                                     "per-thread")
 

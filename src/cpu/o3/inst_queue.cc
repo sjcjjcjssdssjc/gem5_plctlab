@@ -1033,6 +1033,7 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
 
         //Go through the dependency chain, marking the registers as
         //ready within the waiting instructions.
+        //Chain for each regNum.
         DynInstPtr dep_inst = dependGraph.pop(dest_reg->flatIndex());
 
         while (dep_inst) {
@@ -1043,6 +1044,7 @@ InstructionQueue::wakeDependents(const DynInstPtr &completed_inst)
             // so that it knows which of its source registers is
             // ready.  However that would mean that the dependency
             // graph entries would need to hold the src_reg_idx.
+            // increase readysrccnt and if == totalnum, ready.
             dep_inst->markSrcRegReady();
 
             addIfReady(dep_inst);
@@ -1360,6 +1362,11 @@ InstructionQueue::addToDependents(const DynInstPtr &new_inst)
                         src_reg->className());
 
                 // Insts is from rename.
+                // For each physical register create a linked list.
+                // As each inst issue, if its src reg is not ready, insert
+                // it into the corresponding list.
+                // When the insts that it depends on writes back to their
+                // src physical regs which was not ready, wake up them.
                 dependGraph.insert(src_reg->flatIndex(), new_inst);
 
                 // Change the return value to indicate that something

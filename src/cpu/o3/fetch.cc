@@ -360,6 +360,8 @@ Fetch::processCacheCompletion(PacketPtr pkt)
     // to return.
     if (fetchStatus[tid] != IcacheWaitResponse ||
         pkt->req != memReq[tid]) {
+        DPRINTF(Fetch, "[tid:%i] pkt->req %i: memreq: %i\n",
+        tid, pkt->req, memReq[tid]);
         ++fetchStats.icacheSquashes;
         delete pkt;
         return;
@@ -1263,7 +1265,7 @@ Fetch::fetch(bool &status_change)
             }
         }
 
-        // TLDR till 1277
+        // TLDR till 1305
         // Extract as many instructions and/or microops as we can from
         // the memory we've processed so far.
         do {
