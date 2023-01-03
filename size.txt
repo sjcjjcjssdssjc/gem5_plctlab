@@ -1,0 +1,13 @@
+6. Configuration-Setting Instructions (vsetvli/vsetivli/vsetvl)
+
+One of the common approaches to handling a large number of elements is "stripmining" where each iteration of a loop handles some number of elements, and the iterations continue until all elements have been processed. The RISC-V vector specification provides direct, portable support for this approach. The application specifies the total number of elements to be processed (the application vector length or AVL) as a candidate value for vl, and the hardware responds via a general-purpose register with the (frequently smaller) number of elements that the hardware will handle per iteration (stored in vl), based on the microarchitectural implementation and the vtype setting. A straightforward loop structure, shown in Example of stripmining and changes to SEW, depicts the ease with which the code keeps track of the remaining number of elements and the amount per iteration handled by hardware.
+
+A set of instructions is provided to allow rapid configuration of the values in vl and vtype to match application needs. The vset{i}vl{i} instructions set the vtype and vl CSRs based on their arguments, and write the new value of vl into rd.
+
+ vsetvli rd, rs1, vtypei   # rd = new vl, rs1 = AVL, vtypei = new vtype setting
+ vsetivli rd, uimm, vtypei # rd = new vl, uimm = AVL, vtypei = new vtype setting
+ vsetvl  rd, rs1, rs2      # rd = new vl, rs1 = AVL, rs2 = new vtype value
+
+
+CAM: fully associated
+Older map is in ROB!
