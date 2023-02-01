@@ -166,6 +166,7 @@ class StridePrefetcher(QueuedPrefetcher):
         "Starting confidence of new entries")
     confidence_threshold = Param.Percent(50,
         "Prefetch generation confidence threshold")
+    max_conf = Param.Int(16, "max confidence")
 
     use_requestor_id = Param.Bool(True, "Use requestor id based history")
 

@@ -99,6 +99,9 @@ AssociativeSet<Entry>::getPossibleEntries(const Addr addr) const
 {
     std::vector<ReplaceableEntry *> selected_entries =
         indexingPolicy->getPossibleEntries(addr);
+        //see indexingPolicy->setEntry(entry, entry_idx);
+        //in the constructor
+
     std::vector<Entry *> entries(selected_entries.size(), nullptr);
 
     unsigned int idx = 0;
@@ -112,6 +115,7 @@ template<class Entry>
 void
 AssociativeSet<Entry>::insertEntry(Addr addr, bool is_secure, Entry* entry)
 {
+   //set entry's tag as the extracted tag, and set valid bit to 1
    entry->insert(indexingPolicy->extractTag(addr), is_secure);
    replacementPolicy->reset(entry->replacementData);
 }

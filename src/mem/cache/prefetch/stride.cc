@@ -64,7 +64,7 @@ GEM5_DEPRECATED_NAMESPACE(Prefetcher, prefetch);
 namespace prefetch
 {
 
-Stride::StrideEntry::StrideEntry(const SatCounter8& init_confidence)
+Stride::StrideEntry::StrideEntry(const int& init_confidence)
   : TaggedEntry(), confidence(init_confidence)
 {
     invalidate();
@@ -76,15 +76,15 @@ Stride::StrideEntry::invalidate()
     TaggedEntry::invalidate();
     lastAddr = 0;
     stride = 0;
-    confidence.reset();
 }
 
 Stride::Stride(const StridePrefetcherParams &p)
   : Queued(p),
-    initConfidence(p.confidence_counter_bits, p.initial_confidence),
+    initConfidence(p.initial_confidence),
     threshConf(p.confidence_threshold/100.0),
     useRequestorId(p.use_requestor_id),
     degree(p.degree),
+    max_conf(p.max_conf),
     pcTableInfo(p.table_assoc, p.table_entries, p.table_indexing_policy,
         p.table_replacement_policy)
 {
@@ -147,11 +147,13 @@ Stride::calculatePrefetch(const PrefetchInfo &pfi,
 
         // Adjust confidence for stride entry
         if (stride_match && new_stride != 0) {
-            entry->confidence++;
+            if (entry->confidence < max_conf) {
+                entry->confidence++;
+            }
         } else {
             entry->confidence--;
             // If confidence has dropped below the threshold, train new stride
-            if (entry->confidence.calcSaturation() < threshConf) {
+            if ((double)entry->confidence / max_conf < threshConf) {
                 entry->stride = new_stride;
             }
         }
@@ -164,7 +166,7 @@ Stride::calculatePrefetch(const PrefetchInfo &pfi,
         entry->lastAddr = pf_addr;
 
         // Abort prefetch generation if below confidence threshold
-        if (entry->confidence.calcSaturation() < threshConf) {
+        if ((double)entry->confidence / max_conf  < threshConf) {
             return;
         }
 

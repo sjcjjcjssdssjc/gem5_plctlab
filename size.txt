@@ -11,3 +11,7 @@ A set of instructions is provided to allow rapid configuration of the values in 
 
 CAM: fully associated
 Older map is in ROB!
+Walk in ROB is reversed.
+
+gem5:
+rename -> insert into ROB(+1)
