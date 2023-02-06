@@ -151,7 +151,9 @@ Stride::calculatePrefetch(const PrefetchInfo &pfi,
                 entry->confidence++;
             }
         } else {
-            entry->confidence--;
+            if (entry->confidence > 0) {
+                entry->confidence--;
+            }
             // If confidence has dropped below the threshold, train new stride
             if ((double)entry->confidence / max_conf < threshConf) {
                 entry->stride = new_stride;
@@ -171,7 +173,7 @@ Stride::calculatePrefetch(const PrefetchInfo &pfi,
         }
 
         // Generate up to degree prefetches
-        for (int d = 1; d <= degree; d++) {
+        for (int d = 1; d <= degree; d++) { // Overlap?
             // Round strides up to atleast 1 cacheline
             int prefetch_stride = new_stride;
             if (abs(new_stride) < blkSize) {
