@@ -409,7 +409,7 @@ Rename::tick()
 
         status_change = checkSignalsAndUpdate(tid) || status_change;
 
-        rename(status_change, tid);
+        rename(status_change, tid);//(1)
     }
 
     if (status_change) {
@@ -450,7 +450,7 @@ Rename::tick()
 }
 
 void
-Rename::rename(bool &status_change, ThreadID tid)
+Rename::rename(bool &status_change, ThreadID tid)//(1)
 {
     // If status is Running or idle,
     //     call renameInsts()
@@ -490,7 +490,7 @@ Rename::rename(bool &status_change, ThreadID tid)
 
         renameInsts(tid);
     } else if (renameStatus[tid] == Unblocking) {
-        renameInsts(tid);
+        renameInsts(tid);//(2)
 
         if (validInsts()) {
             // Add the current inputs to the skid buffer so they can be
@@ -505,7 +505,7 @@ Rename::rename(bool &status_change, ThreadID tid)
 }
 
 void
-Rename::renameInsts(ThreadID tid)
+Rename::renameInsts(ThreadID tid)//(2)
 {
     // Instructions can be either in the skid buffer or the queue of
     // instructions coming from decode, depending on the status.
